@@ -1,0 +1,8 @@
+.modal-dialog-centered {
+  justify-content: center;
+}
+
+#successAlert,
+#updateAlert {
+  padding: 2rem 2rem
+}
