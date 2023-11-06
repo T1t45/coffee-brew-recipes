@@ -1,14 +1,8 @@
-// Query Selectors
 const recipeForm = document.querySelector("#recipe-form");
 const recipeContainer = document.querySelector("#recipe-container");
 const rootRecipeContainer = document.querySelector("#root-recipe-container");
 const editModal = document.querySelector("#editModal");
-//const feedbackModal = document.querySelector("#feedbackModal");
-
-// Data
-
 let listItems = [];
-
 function Recipe(name, method, roast, grind, ratio, note, id) {
   (this.name = name),
     (this.method = method),
@@ -18,14 +12,10 @@ function Recipe(name, method, roast, grind, ratio, note, id) {
     (this.note = note),
     (this.id = id);
 }
-
-// FUNCTIONS
-
 function isValidRatio(ratio) {
   const ratioPattern = /^\d+:\d+$/;
   return ratioPattern.test(ratio);
 }
-
 function handleFormSubmit(e) {
   e.preventDefault();
   const name = DOMPurify.sanitize(recipeForm.querySelector("#name").value);
@@ -34,7 +24,6 @@ function handleFormSubmit(e) {
   const grind = DOMPurify.sanitize(recipeForm.querySelector("#grind").value);
   const ratio = DOMPurify.sanitize(recipeForm.querySelector("#ratio").value);
   const note = DOMPurify.sanitize(recipeForm.querySelector("#note").value);
-
   const newRecipe = new Recipe(
     name,
     method,
@@ -44,14 +33,11 @@ function handleFormSubmit(e) {
     note,
     Date.now()
   );
-
   listItems.push(newRecipe);
   e.target.reset();
   recipeContainer.dispatchEvent(new CustomEvent("refreshRecipes"));
-
   displayFeedbackModal("add");
 }
-
 function displayFeedbackModal(action) {
   let feedbackMessage;
   if (action === "add") {
@@ -72,7 +58,6 @@ function displayFeedbackModal(action) {
    `;
   }
   document.querySelector("#feedbackModal").innerHTML = feedbackMessage;
-
   let feedbackModal = new bootstrap.Modal(
     document.getElementById("feedbackModal")
   );
@@ -81,7 +66,6 @@ function displayFeedbackModal(action) {
     feedbackModal.hide();
   }, 1500);
 }
-
 function displayRecipes() {
   if (listItems.length === 0) {
     rootRecipeContainer.style.display = "none";
@@ -135,11 +119,9 @@ function displayRecipes() {
     recipeContainer.innerHTML = tempString;
   }
 }
-
 function mirrorStateToLocalStorage() {
   localStorage.setItem("recipeContainer.list", JSON.stringify(listItems));
 }
-
 function loadinitialUI() {
   const tempLocalStorage = localStorage.getItem("recipeContainer.list");
   if (tempLocalStorage === null || tempLocalStorage.length === 0) return;
@@ -147,29 +129,22 @@ function loadinitialUI() {
   listItems.push(...tempRecipes);
   recipeContainer.dispatchEvent(new CustomEvent("refreshRecipes"));
 }
-
 function deleteRecipeFromList(id) {
   listItems = listItems.filter((item) => item.id !== id);
   recipeContainer.dispatchEvent(new CustomEvent("refreshRecipes"));
 }
-
 function editRecipe(id) {
   const recipeToEdit = listItems.find((item) => item.id === id);
-
   const labelHeader = document.querySelector("#editModalLabel");
   labelHeader.innerText = "Edit " + recipeToEdit.name;
-
   document.querySelector("#editModal #edit-name").value = recipeToEdit.name;
   document.querySelector("#editModal #edit-method").value = recipeToEdit.method;
   document.querySelector("#editModal #edit-roast").value = recipeToEdit.roast;
   document.querySelector("#editModal #edit-grind").value = recipeToEdit.grind;
   document.querySelector("#editModal #edit-ratio").value = recipeToEdit.ratio;
   document.querySelector("#editModal #edit-note").value = recipeToEdit.note;
-
   document.querySelector("#editModal #edit").dataset.id = id;
 }
-
-// EVENT LISTENERS
 recipeForm.addEventListener("submit", handleFormSubmit);
 recipeContainer.addEventListener("refreshRecipes", displayRecipes);
 recipeContainer.addEventListener("refreshRecipes", mirrorStateToLocalStorage);
@@ -177,61 +152,76 @@ window.addEventListener("DOMContentLoaded", loadinitialUI);
 recipeContainer.addEventListener("click", (e) => {
   if (e.target.matches(".btn-outline-danger")) {
     const idToDelete = Number(e.target.value);
-    const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'), {});
+    const deleteModal = new bootstrap.Modal(
+      document.getElementById("deleteModal"),
+      {}
+    );
     const confirmDeleteBtn = document.querySelector("#confirm-delete");
-    
-    confirmDeleteBtn.onclick = function() {
+    confirmDeleteBtn.onclick = function () {
       deleteRecipeFromList(idToDelete);
       deleteModal.hide();
     };
-
     deleteModal.show();
   } else if (e.target.matches(".btn-outline-success")) {
     editRecipe(Number(e.target.value));
   }
 });
-
-editModal.addEventListener("show.bs.modal", function (e) {
-  const editButton = editModal.querySelector("#edit");
-  editButton.addEventListener("click", function () {
-    e.preventDefault();
-    const id = Number(editButton.dataset.id);
-    const updatedRecipe = listItems.find((item) => item.id === id);
-    const ratio = DOMPurify.sanitize(editModal.querySelector("#edit-ratio").value);
-    const alertPlaceholder = document.getElementById("editAlertPlaceholder");
-    if (!isValidRatio(ratio)) {
-      const alertHtml = `
+const editButton = editModal.querySelector("#edit");
+editButton.addEventListener("click", function (e) {
+  e.preventDefault();
+  const id = Number(this.dataset.id);
+  const updatedRecipe = listItems.find((item) => item.id === id);
+  const ratio = DOMPurify.sanitize(
+    editModal.querySelector("#edit-ratio").value
+  );
+  const alertPlaceholder = document.getElementById("editAlertPlaceholder");
+  if (!isValidRatio(ratio)) {
+    const alertHtml = `
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
           <strong>Error!</strong> Invalid ratio format. Please enter in the form 'X:Y'.
           <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
       `;
-      alertPlaceholder.innerHTML = alertHtml;
-      setTimeout(function () {alertPlaceholder.innerHTML = ""}, 5000);
-    } else {
-      updatedRecipe.name = DOMPurify.sanitize(
-        editModal.querySelector("#edit-name").value
-      );
-      updatedRecipe.method = DOMPurify.sanitize(
-        editModal.querySelector("#edit-method").value
-      );
-      updatedRecipe.roast = DOMPurify.sanitize(
-        editModal.querySelector("#edit-roast").value
-      );
-      updatedRecipe.grind = DOMPurify.sanitize(
-        editModal.querySelector("#edit-grind").value
-      );
-      updatedRecipe.ratio = ratio;
-      updatedRecipe.note = DOMPurify.sanitize(
-        editModal.querySelector("#edit-note").value
-      );
+    alertPlaceholder.innerHTML = alertHtml;
+    setTimeout(function () {
+      alertPlaceholder.innerHTML = "";
+    }, 5000);
+  } else {
+    updatedRecipe.name = DOMPurify.sanitize(
+      editModal.querySelector("#edit-name").value
+    );
+    updatedRecipe.method = DOMPurify.sanitize(
+      editModal.querySelector("#edit-method").value
+    );
+    updatedRecipe.roast = DOMPurify.sanitize(
+      editModal.querySelector("#edit-roast").value
+    );
+    updatedRecipe.grind = DOMPurify.sanitize(
+      editModal.querySelector("#edit-grind").value
+    );
+    updatedRecipe.ratio = ratio;
+    updatedRecipe.note = DOMPurify.sanitize(
+      editModal.querySelector("#edit-note").value
+    );
+    recipeContainer.dispatchEvent(new CustomEvent("refreshRecipes"));
+    const modalInstance = bootstrap.Modal.getInstance(editModal);
+    modalInstance.hide();
+    displayFeedbackModal("edit");
+  }
+});
 
-      recipeContainer.dispatchEvent(new CustomEvent("refreshRecipes"));
-
-      const modalInstance = bootstrap.Modal.getInstance(editModal);
-      modalInstance.hide();
-
-      displayFeedbackModal("edit");
-    }
-  });
+editModal.addEventListener("show.bs.modal", function (e) {
+  const button = e.relatedTarget;
+  const id = Number(button.getAttribute('value'));
+  editButton.dataset.id = id;
+  
+  const recipeToEdit = listItems.find((item) => item.id === id);
+  const labelHeader = document.querySelector("#editModalLabel");
+  labelHeader.innerText = "Edit " + recipeToEdit.name;
+  document.querySelector("#editModal #edit-name").value = recipeToEdit.name;
+  document.querySelector("#editModal #edit-method").value = recipeToEdit.method;
+  document.querySelector("#editModal #edit-roast").value = recipeToEdit.roast;
+  document.querySelector("#editModal #edit-grind").value = recipeToEdit.grind;
+  document.querySelector("#editModal #edit-ratio").value = recipeToEdit.ratio;
+  document.querySelector("#editModal #edit-note").value = recipeToEdit.note;
 });
