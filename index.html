@@ -25,6 +25,7 @@
       </div>
     </div>
     <main>
+
       <div
         class="modal fade"
         id="editModal"
@@ -44,6 +45,7 @@
               ></button>
             </div>
             <div class="modal-body">
+              <div id="editAlertPlaceholder"></div>
               <div class="mb-3">
                 <label for="name">Name of Recipe</label>
                 <input
@@ -92,6 +94,8 @@
                   autocomplete="off"
                   id="ratio"
                   placeholder="e.g., 1:16"
+                  pattern="\d+:\d+"
+                  title="Please enter a valid ratio (e.g., 1:16)"
                 />
               </div>
               <div class="mb-3">
@@ -163,6 +167,8 @@
               id="ratio"
               class="form-control"
               placeholder="e.g., 1:16"
+              pattern="\d+:\d+"
+              title="Please enter a valid ratio (e.g., 1:16)"
             />
           </div>
           <div class="form-group col-md-4 my-2">

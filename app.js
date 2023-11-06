@@ -19,6 +19,12 @@ function Recipe(name, method, roast, grind, ratio, note, id) {
 }
 
 // FUNCTIONS
+
+function isValidRatio(ratio) {
+  const ratioPattern = /^\d+:\d+$/;
+  return ratioPattern.test(ratio);
+}
+
 function handleFormSubmit(e) {
   e.preventDefault();
   const name = DOMPurify.sanitize(recipeForm.querySelector("#name").value);
@@ -148,18 +154,32 @@ editModal.addEventListener('show.bs.modal', function (e) {
     e.preventDefault();
     const id = Number(editButton.dataset.id);
     const updatedRecipe = listItems.find(item => item.id === id);
-
-    updatedRecipe.name = DOMPurify.sanitize(editModal.querySelector("#name").value);
-    updatedRecipe.method = DOMPurify.sanitize(editModal.querySelector("#method").value);
-    updatedRecipe.roast = DOMPurify.sanitize(editModal.querySelector("#roast").value);
-    updatedRecipe.grind = DOMPurify.sanitize(editModal.querySelector("#grind").value);
-    updatedRecipe.ratio = DOMPurify.sanitize(editModal.querySelector("#ratio").value);
-    updatedRecipe.note = DOMPurify.sanitize(editModal.querySelector("#note").value);
-
-    recipeContainer.dispatchEvent(new CustomEvent("refreshRecipes"));
-
-    const modalInstance = bootstrap.Modal.getInstance(editModal);
-    modalInstance.hide();
+    const ratio = DOMPurify.sanitize(editModal.querySelector("#ratio").value);
+    const alertPlaceholder = document.getElementById('editAlertPlaceholder');
+    if(!isValidRatio(ratio)) {
+      alertPlaceholder.innerHTML = '';
+      const alertHtml = `
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+          <strong>Error!</strong> Invalid ratio format. Please enter in the form 'X:Y'.
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      `;
+      alertPlaceholder.innerHTML = alertHtml;
+      //alert("Invalid ratio format. Please enter in the form 'X:Y'.");
+      
+    } else {
+      updatedRecipe.name = DOMPurify.sanitize(editModal.querySelector("#name").value);
+      updatedRecipe.method = DOMPurify.sanitize(editModal.querySelector("#method").value);
+      updatedRecipe.roast = DOMPurify.sanitize(editModal.querySelector("#roast").value);
+      updatedRecipe.grind = DOMPurify.sanitize(editModal.querySelector("#grind").value);
+      updatedRecipe.ratio = ratio;
+      updatedRecipe.note = DOMPurify.sanitize(editModal.querySelector("#note").value);
+  
+      recipeContainer.dispatchEvent(new CustomEvent("refreshRecipes"));
+  
+      const modalInstance = bootstrap.Modal.getInstance(editModal);
+      modalInstance.hide();
+    } 
   });
 });
 
