@@ -1,6 +1,8 @@
 # Coffee Recipe App
 
-Welcome to the Coffee Recipe App, where coffee enthusiasts can create, view, edit, and delete coffee recipes. With a simple and friendly interface, you can keep all your favorite coffee preparation methods at your fingertips.
+Welcome to the Coffee Recipe App, a simple and user-friendly application for coffee enthusiasts.
+
+It was developed by using vanilla JavaScript and Bootstrap 5 for enhanced styling and responsiveness.
 
 ## Getting Started
 
@@ -8,7 +10,7 @@ To get started with our Coffee Recipe App, simply clone the repository to your l
 
 ## Features
 
-- **Add Recipes:** Easily add your coffee recipes with details such as name, brewing method, roast level, grind size, and water-to-coffee ratio. You can even add personal notes for each recipe.
+- **Add Recipes:** Easily add your coffee recipes with details such as name, brewing method, roast level, grind size, and water-to-coffee ratio. You can add personal notes for each recipe.
 - **View Recipes:** All your recipes are displayed on the main page, allowing for quick and easy access.
 - **Edit Recipes:** Make a mistake or want to tweak your recipe? Edit any recipe with just a few clicks.
 - **Delete Recipes:** Remove recipes that you no longer need with the simple press of a button.
@@ -37,7 +39,3 @@ To get started with our Coffee Recipe App, simply clone the repository to your l
 
 1. Click the 'Delete' button on the recipe you wish to remove.
 2. Confirm the deletion in the confirmation dialog.
-
-## Contributing
-
-Lovers of coffee and code are welcome to contribute to this project. If you have suggestions on how to improve the app, please fork the repository and create a pull request or open an issue with the tag "enhancement". Don't forget to give the project a star! Thanks again!
