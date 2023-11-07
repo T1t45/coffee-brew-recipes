@@ -1,8 +1,14 @@
+// DOM elements
 const recipeForm = document.querySelector("#recipe-form");
 const recipeContainer = document.querySelector("#recipe-container");
 const rootRecipeContainer = document.querySelector("#root-recipe-container");
 const editModal = document.querySelector("#editModal");
+const feedbackModal = document.querySelector("#feedbackModal");
+
+// Data structure
 let listItems = [];
+
+// Constructors and utility functions
 function Recipe(name, method, roast, grind, ratio, note, id) {
   (this.name = name),
     (this.method = method),
@@ -12,10 +18,13 @@ function Recipe(name, method, roast, grind, ratio, note, id) {
     (this.note = note),
     (this.id = id);
 }
+
 function isValidRatio(ratio) {
   const ratioPattern = /^\d+:\d+$/;
   return ratioPattern.test(ratio);
 }
+
+// Event handler functions
 function handleFormSubmit(e) {
   e.preventDefault();
   const name = DOMPurify.sanitize(recipeForm.querySelector("#name").value);
@@ -38,6 +47,7 @@ function handleFormSubmit(e) {
   recipeContainer.dispatchEvent(new CustomEvent("refreshRecipes"));
   displayFeedbackModal("add");
 }
+
 function displayFeedbackModal(action) {
   let feedbackMessage;
   if (action === "add") {
@@ -57,15 +67,14 @@ function displayFeedbackModal(action) {
     </div>
    `;
   }
-  document.querySelector("#feedbackModal").innerHTML = feedbackMessage;
-  let feedbackModal = new bootstrap.Modal(
-    document.getElementById("feedbackModal")
-  );
-  feedbackModal.show();
+  feedbackModal.innerHTML = feedbackMessage;
+  let feedbackModalBootstrap = new bootstrap.Modal(feedbackModal);
+  feedbackModalBootstrap.show();
   setTimeout(function () {
-    feedbackModal.hide();
+    feedbackModalBootstrap.hide();
   }, 1500);
 }
+
 function displayRecipes() {
   if (listItems.length === 0) {
     rootRecipeContainer.style.display = "none";
@@ -119,9 +128,11 @@ function displayRecipes() {
     recipeContainer.innerHTML = tempString;
   }
 }
+
 function mirrorStateToLocalStorage() {
   localStorage.setItem("recipeContainer.list", JSON.stringify(listItems));
 }
+
 function loadinitialUI() {
   const tempLocalStorage = localStorage.getItem("recipeContainer.list");
   if (tempLocalStorage === null || tempLocalStorage.length === 0) return;
@@ -129,10 +140,12 @@ function loadinitialUI() {
   listItems.push(...tempRecipes);
   recipeContainer.dispatchEvent(new CustomEvent("refreshRecipes"));
 }
+
 function deleteRecipeFromList(id) {
   listItems = listItems.filter((item) => item.id !== id);
   recipeContainer.dispatchEvent(new CustomEvent("refreshRecipes"));
 }
+
 function editRecipe(id) {
   const recipeToEdit = listItems.find((item) => item.id === id);
   const labelHeader = document.querySelector("#editModalLabel");
@@ -145,16 +158,19 @@ function editRecipe(id) {
   document.querySelector("#editModal #edit-note").value = recipeToEdit.note;
   document.querySelector("#editModal #edit").dataset.id = id;
 }
+
+// Event listeners for the form and the recipe container
 recipeForm.addEventListener("submit", handleFormSubmit);
 recipeContainer.addEventListener("refreshRecipes", displayRecipes);
 recipeContainer.addEventListener("refreshRecipes", mirrorStateToLocalStorage);
 window.addEventListener("DOMContentLoaded", loadinitialUI);
+
+// Click event delegation for the recipe container
 recipeContainer.addEventListener("click", (e) => {
   if (e.target.matches(".btn-outline-danger")) {
     const idToDelete = Number(e.target.value);
     const deleteModal = new bootstrap.Modal(
-      document.getElementById("deleteModal"),
-      {}
+      document.getElementById("deleteModal")
     );
     const confirmDeleteBtn = document.querySelector("#confirm-delete");
     confirmDeleteBtn.onclick = function () {
@@ -166,6 +182,8 @@ recipeContainer.addEventListener("click", (e) => {
     editRecipe(Number(e.target.value));
   }
 });
+
+// Edit button event listener
 const editButton = editModal.querySelector("#edit");
 editButton.addEventListener("click", function (e) {
   e.preventDefault();
@@ -210,11 +228,12 @@ editButton.addEventListener("click", function (e) {
   }
 });
 
+// Edit modal show event listener
 editModal.addEventListener("show.bs.modal", function (e) {
   const button = e.relatedTarget;
-  const id = Number(button.getAttribute('value'));
+  const id = Number(button.getAttribute("value"));
   editButton.dataset.id = id;
-  
+
   const recipeToEdit = listItems.find((item) => item.id === id);
   const labelHeader = document.querySelector("#editModalLabel");
   labelHeader.innerText = "Edit " + recipeToEdit.name;
